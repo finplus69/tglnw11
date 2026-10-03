@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { margin: 0; width: 340px; color: #172033; background: #f5f7fb; font: 13px/1.45 Inter, system-ui, -apple-system, sans-serif; }
+.shell { padding: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.mark { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: white; background: linear-gradient(135deg,#4f7cff,#6c4cff); font-weight: 800; font-size: 18px; }
+h1 { font-size: 16px; margin: 0; } .brand p { color: #75809a; margin: 1px 0 0; font-size: 11px; }
+.safe { display: flex; flex-direction: column; gap: 2px; padding: 10px; border: 1px solid #cbeedc; border-radius: 10px; background: #effcf5; color: #16643b; margin-bottom: 14px; }
+.safe span, .hint, .micro { color: #63708a; font-size: 11px; }
+label { display: block; font-weight: 650; margin: 10px 0 5px; }
+input { width: 100%; border: 1px solid #d8deea; border-radius: 8px; padding: 9px 10px; outline: none; background: #fff; }
+input:focus { border-color: #5e77ee; box-shadow: 0 0 0 3px #e5eaff; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+button { border: 1px solid #d7ddea; border-radius: 8px; padding: 9px 8px; background: #fff; color: #25304a; cursor: pointer; font-weight: 650; }
+button:hover { border-color: #778cf2; } button.primary { border-color: #526cf0; color: white; background: #526cf0; }
+.full { width: 100%; margin-top: 8px; }
+.status { min-height: 18px; color: #526cf0; margin: 9px 0 0; font-size: 12px; }
+hr { border: 0; border-top: 1px solid #e1e5ee; margin: 12px 0; }
+code { background: #20283b; color: #dce5ff; border-radius: 5px; padding: 2px 5px; font-size: 10px; }
+a { display: inline-block; margin-top: 12px; color: #526cf0; text-decoration: none; font-weight: 650; }

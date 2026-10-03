@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Tele Workspace Companion",
-  "version": "1.0.0",
-  "description": "ตัวช่วยเปิด Telegram Web และเตรียมคำสั่ง export แบบปลอดภัย โดยไม่อ่าน credential หรือส่งข้อความอัตโนมัติ",
+  "version": "1.1.0",
+  "description": "ตัวช่วย Telegram Web พร้อมแจ้งเตือนงานจาก tele.py แบบเรียลไทม์ โดยไม่อ่าน credential หรือส่งข้อความอัตโนมัติ",
   "action": {
     "default_title": "Tele Workspace Companion",
     "default_popup": "popup.html"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "notifications", "alarms"],
+  "host_permissions": ["http://127.0.0.1:8765/*"],
+  "background": { "service_worker": "service-worker.js" },
   "content_scripts": [
     {
       "matches": ["https://web.telegram.org/*"],

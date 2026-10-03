@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Tele Workspace Companion",
+  "version": "1.1.0",
+  "description": "ตัวช่วย Telegram Web พร้อมแจ้งเตือนงานจาก tele.py แบบเรียลไทม์ โดยไม่อ่าน credential หรือส่งข้อความอัตโนมัติ",
+  "action": {
+    "default_title": "Tele Workspace Companion",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage", "notifications", "alarms"],
+  "host_permissions": ["http://127.0.0.1:8765/*"],
+  "background": { "service_worker": "service-worker.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://web.telegram.org/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

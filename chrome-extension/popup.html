@@ -8,8 +8,11 @@
 </head>
 <body>
   <main class="shell">
-    <div class="brand"><span class="mark">T</span><div><h1>Tele Workspace</h1><p>Chrome companion</p></div></div>
+    <div class="brand"><span class="mark">T</span><div><h1>Tele Workspace</h1><p>Chrome companion · v1.1</p></div></div>
     <div class="safe"><strong>Safe mode</strong><span>ไม่อ่าน session และไม่ส่งข้อความอัตโนมัติ</span></div>
+    <label for="token">Notification token</label>
+    <input id="token" type="password" placeholder="จาก python tele.py notify-token" autocomplete="off">
+    <p class="micro">เปิด bridge ก่อน: <code>python tele.py notifications</code></p>
     <label for="group">ชื่อกลุ่มหรือ username</label>
     <input id="group" type="text" placeholder="เช่น @my_group" autocomplete="off">
     <label for="limit">จำนวนสูงสุดสำหรับ export</label>
@@ -21,8 +24,7 @@
     <button id="copy" class="full">คัดลอกคำสั่ง export สำหรับ CLI</button>
     <p id="status" class="status" role="status"></p>
     <hr>
-    <p class="hint">ใช้ CLI ใน repository เพื่อเชื่อมต่อ Telegram API:</p>
-    <code>python tele.py export-members --group @group</code>
+    <p class="hint">เมื่อ bridge ทำงาน ส่วนขยายจะแจ้งเตือนผลลัพธ์ของ check, groups และ export-members แบบเรียลไทม์</p>
     <a href="https://github.com/finplus69/tglnw11" target="_blank" rel="noreferrer">ดูโปรเจกต์บน GitHub ↗</a>
   </main>
   <script src="popup.js"></script>

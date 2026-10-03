@@ -35,14 +35,25 @@ python tele.py export-members --group @your_group --output members-export.csv --
 
 ## Chrome Extension
 
-มีไฟล์ติดตั้ง `tele-workspace-companion-v1.0.0.zip` สำหรับ Chrome เป็นส่วนเสริม companion ของ Telegram Web:
+มีไฟล์ติดตั้ง `tele-workspace-companion-v1.1.0.zip` สำหรับ Chrome เป็นส่วนเสริม companion ของ Telegram Web:
 
 1. แตกไฟล์ ZIP
 2. เปิด `chrome://extensions`
 3. เปิด **Developer mode**
 4. กด **Load unpacked** แล้วเลือกโฟลเดอร์ที่มี `manifest.json`
 
-ส่วนขยายช่วยบันทึกชื่อกลุ่มและคัดลอกคำสั่งให้ `tele.py` เท่านั้น ไม่อ่าน session/API hash และไม่ส่งข้อความหรือเพิ่มสมาชิกอัตโนมัติ อ่านรายละเอียดได้ที่ [`chrome-extension/README.md`](chrome-extension/README.md)
+ส่วนขยายช่วยบันทึกชื่อกลุ่ม, คัดลอกคำสั่งให้ `tele.py` และแสดง desktop notification จากงาน CLI แบบเรียลไทม์ ไม่อ่าน session/API hash และไม่ส่งข้อความหรือเพิ่มสมาชิกอัตโนมัติ อ่านรายละเอียดได้ที่ [`chrome-extension/README.md`](chrome-extension/README.md) และ [`chrome-extension/INTEGRATION.md`](chrome-extension/INTEGRATION.md)
+
+เปิด realtime bridge ก่อนใช้งาน:
+
+```bash
+python tele.py notify-token
+python tele.py notifications
+```
+
+นำ token ไปใส่ใน popup ของส่วนขยาย แล้วใช้ `check`, `groups` หรือ `export-members` ใน terminal
+
+แพ็กเกจรวมที่มี `manifest.json` อยู่ที่โฟลเดอร์รากสำหรับ **Load unpacked**: `tele-workspace-v1.1.0-full.zip`
 
 ## ความปลอดภัย
 
