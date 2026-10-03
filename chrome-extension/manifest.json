@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Tele Workspace Companion",
+  "version": "1.0.0",
+  "description": "ตัวช่วยเปิด Telegram Web และเตรียมคำสั่ง export แบบปลอดภัย โดยไม่อ่าน credential หรือส่งข้อความอัตโนมัติ",
+  "action": {
+    "default_title": "Tele Workspace Companion",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://web.telegram.org/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

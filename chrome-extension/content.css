@@ -1,0 +1,8 @@
+.tele-workspace-panel { position: fixed; z-index: 2147483647; right: 18px; bottom: 18px; width: 270px; padding: 13px; border: 1px solid rgba(105,126,190,.25); border-radius: 14px; color: #1d2740; background: rgba(255,255,255,.97); box-shadow: 0 12px 35px rgba(18,30,72,.2); font: 12px/1.4 system-ui, sans-serif; }
+.tele-workspace-title { display: flex; align-items: center; gap: 7px; }
+.tele-workspace-title span { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; color: white; background: #586ff0; font-size: 10px; font-weight: 800; }
+.tele-workspace-title strong { flex: 1; font-size: 13px; }
+.tele-workspace-title button { border: 0; background: transparent; color: #7c879c; cursor: pointer; font-size: 20px; line-height: 1; }
+.tele-workspace-safe { margin: 10px 0; padding: 8px; border-radius: 8px; color: #23643f; background: #effcf5; font-size: 11px; }
+.tele-workspace-group { color: #68738a; margin-bottom: 10px; overflow-wrap: anywhere; }
+.tele-workspace-copy { width: 100%; border: 1px solid #d7ddea; border-radius: 8px; padding: 8px; color: #fff; background: #586ff0; cursor: pointer; font-weight: 650; }

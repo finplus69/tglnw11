@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tele Workspace</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <div class="brand"><span class="mark">T</span><div><h1>Tele Workspace</h1><p>Chrome companion</p></div></div>
+    <div class="safe"><strong>Safe mode</strong><span>ไม่อ่าน session และไม่ส่งข้อความอัตโนมัติ</span></div>
+    <label for="group">ชื่อกลุ่มหรือ username</label>
+    <input id="group" type="text" placeholder="เช่น @my_group" autocomplete="off">
+    <label for="limit">จำนวนสูงสุดสำหรับ export</label>
+    <input id="limit" type="number" min="1" max="10000" value="1000">
+    <div class="actions">
+      <button id="save" class="primary">บันทึก</button>
+      <button id="open">เปิด Telegram Web</button>
+    </div>
+    <button id="copy" class="full">คัดลอกคำสั่ง export สำหรับ CLI</button>
+    <p id="status" class="status" role="status"></p>
+    <hr>
+    <p class="hint">ใช้ CLI ใน repository เพื่อเชื่อมต่อ Telegram API:</p>
+    <code>python tele.py export-members --group @group</code>
+    <a href="https://github.com/finplus69/tglnw11" target="_blank" rel="noreferrer">ดูโปรเจกต์บน GitHub ↗</a>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

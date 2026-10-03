@@ -33,6 +33,17 @@ python tele.py export-members --group @your_group --output members-export.csv --
 
 ไฟล์ export จะเก็บเฉพาะ `username`, `display_name`, และ `group` เป็นค่าเริ่มต้น โดยไม่เก็บ user ID หรือ access hash เพื่อจำกัดการรั่วไหลของข้อมูล
 
+## Chrome Extension
+
+มีไฟล์ติดตั้ง `tele-workspace-companion-v1.0.0.zip` สำหรับ Chrome เป็นส่วนเสริม companion ของ Telegram Web:
+
+1. แตกไฟล์ ZIP
+2. เปิด `chrome://extensions`
+3. เปิด **Developer mode**
+4. กด **Load unpacked** แล้วเลือกโฟลเดอร์ที่มี `manifest.json`
+
+ส่วนขยายช่วยบันทึกชื่อกลุ่มและคัดลอกคำสั่งให้ `tele.py` เท่านั้น ไม่อ่าน session/API hash และไม่ส่งข้อความหรือเพิ่มสมาชิกอัตโนมัติ อ่านรายละเอียดได้ที่ [`chrome-extension/README.md`](chrome-extension/README.md)
+
 ## ความปลอดภัย
 
 - ห้าม commit `config.env`, session, API hash, เบอร์โทร หรือ CSV ที่มีข้อมูลสมาชิกจริง
