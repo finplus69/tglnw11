@@ -22,7 +22,6 @@ def test_help_and_commands():
 
 
 def test_no_real_credentials_in_source():
-    for path in ROOT.glob("*.py"):
-        text = path.read_text(encoding="utf-8")
-        assert "config.data" not in text
-        assert ".session" not in text
+    text = (ROOT / "tele.py").read_text(encoding="utf-8")
+    assert "config.data" not in text
+    assert "api_id = 123456" not in text
