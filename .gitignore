@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local Telegram credentials and sessions
+config.data
+config.env
+vars.txt
+*.session
+*.session-journal
+.tele-workspace/
+
+# Local exports and personal data
+members*.csv
+*-export.csv
+*.log
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/

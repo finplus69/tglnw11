@@ -1,54 +1,51 @@
-LATEST VERSION : https://github.com/erfan4lx/Telegram-Members-Adder/
+# Tele Workspace
 
+เครื่องมือ CLI สำหรับจัดการบัญชี Telegram และส่งออกไดเรกทอรีสมาชิกของกลุ่มที่คุณมีสิทธิ์ดูแล โดยเน้นความปลอดภัยและการลดข้อมูลส่วนบุคคล
 
-## • Contact With Me On : 
+> **ขอบเขตสำคัญ:** โปรเจกต์นี้ไม่รองรับการส่งข้อความจำนวนมาก การเพิ่มสมาชิกจำนวนมาก การหมุนหลายบัญชี หรือการหลบเลี่ยง flood limit ของ Telegram ใช้เฉพาะกับบัญชี/กลุ่มที่คุณควบคุมหรือได้รับอนุญาต และปฏิบัติตาม [Telegram Terms of Service](https://telegram.org/tos) เสมอ
 
- MY OFFICIAL WEBSITE : https://erfan4lx.com
+## ติดตั้ง
 
-🆔My YouTube Channel : http://youtube.com/erfan4lx
+```bash
+python3 -m venv .venv
+. .venv/bin/activate       # Windows: .venv\\Scripts\\activate
+python -m pip install -r requirements.txt
+```
 
-🆔My Telegram Channel : https://t.me/Erfan4lxTeam1
+## ตั้งค่าและล็อกอิน
 
-🆔My Instagram Page : https://www.instagram.com/_erfan4lx_/
+สร้าง API ID และ API hash ได้จาก [my.telegram.org](https://my.telegram.org):
 
-Show full video on YouTube : https://youtu.be/CyYdYjeBeIg
+```bash
+python tele.py setup
+python tele.py check
+```
 
-Show demo video on Instagram : https://www.instagram.com/p/CMHUZLPgfOB
+ค่า config และ session จะถูกเก็บใน `~/.tele-workspace` และไม่ถูก commit เข้า Git หากต้องการเปลี่ยนที่เก็บข้อมูล ให้ตั้ง `TELE_HOME` ก่อนรัน
 
-Contact with me to get the Password of Zip file on :
+## คำสั่ง
 
- Telegram : https://t.me/erfan4lx1
-  
- Email : erfan4lx@gmail.com
+```bash
+python tele.py check
+python tele.py groups
+python tele.py export-members --group @your_group --output members-export.csv --limit 1000
+```
 
-## • How To Install and Use
+ไฟล์ export จะเก็บเฉพาะ `username`, `display_name`, และ `group` เป็นค่าเริ่มต้น โดยไม่เก็บ user ID หรือ access hash เพื่อจำกัดการรั่วไหลของข้อมูล
 
-`$ git clone https://github.com/erfan4lx/TelegramBulkMessageSender.git`
+## ความปลอดภัย
 
-`$ cd TelegramBulkMessageSender`
+- ห้าม commit `config.env`, session, API hash, เบอร์โทร หรือ CSV ที่มีข้อมูลสมาชิกจริง
+- หาก session เดิมเคยถูกอัปโหลดแล้ว ให้ลบออกจาก Git และยกเลิก session นั้นจาก Telegram: **Settings → Devices → Terminate session**
+- ห้ามนำข้อมูล export ไปใช้ส่งสแปม เพิ่มสมาชิกโดยไม่ได้รับความยินยอม หรือทำให้บัญชีอื่นเดือดร้อน
 
-* Install requierments
+## ทดสอบ
 
-`$ python3 setup.py -i`
+```bash
+python -m compileall -q tele.py
+python tele.py --help
+```
 
-* setup configration file ( apiID, apiHASH )
+## License
 
-`$ python3 setup.py -c`
-
-* To Scrape Users from group
-
-`$ python3 scraper.py`
-
-* ( members.csv is default if you changed name use it )
-* Send Bulk sms To Collected Data 
-
-`$ python3 smsbot.py members.csv`
-
-<p align="center">
-  Follow Me On
-</p>
-<p align="center">
-  <a href="https://www.youtube.com/c/erfan4lx?sub_confirmation=1">
-    <img src="https://www.iconsdb.com/icons/preview/black/youtube-4-xxl.png" width="40" height="40">
-  </a>
-</p>
+MIT License ตามไฟล์ `LICENSE`
