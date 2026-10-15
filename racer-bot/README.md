@@ -77,4 +77,32 @@ python bot.py
 
 ถ้าตั้ง `RACER_WEBHOOK_URL` บอทจะส่ง `task_submission_verified` หลังตรวจเสร็จพร้อม `taskId`, ผู้ใช้, โพสต์ต้นทาง, message ID ของหลักฐาน, checks, status และ points โดยใช้ `RACER_WEBHOOK_SECRET` เป็น Bearer token วิธีนี้ทำให้ Dashboard อัปเดตได้โดยไม่ต้องเปิดไฟล์ SQLite ของ Railway ออกสาธารณะ
 
-> หมายเหตุ: “โพสต์ X” ใน implementation นี้ตีความเป็นโพสต์กิจกรรมบน Telegram Channel หากหมายถึงแพลตฟอร์ม X/Twitter โดยตรง ต้องเพิ่ม X API credentials และ worker แยกต่างหาก ไม่ควรนำ token ของ Telegram ไปใช้แทนกัน
+## X (Twitter) → Telegram Task
+
+โมดูล `x_integration.py` เชื่อม X API v2 เข้ากับ Task โดยใช้ App Bearer Token สำหรับอ่านโพสต์และ `public_metrics` เช่น likes, reposts, replies และ bookmarks
+
+ตั้งค่าใน `.env`:
+
+```env
+X_BEARER_TOKEN=จาก X Developer Console
+X_POST_IDS=1234567890123456789,1234567890123456790
+X_POLL_SECONDS=30
+# ทางเลือก: rule ของ Filtered Stream
+X_FILTERED_STREAM_RULE=from:your_account -is:retweet
+```
+
+ใน Discussion thread ของ Task ใช้คำสั่ง:
+
+```text
+/link_x_task https://x.com/brand/status/1234567890123456789 | X Campaign | 40 | 2026-10-16T23:59:00
+```
+
+บอทจะเรียก X API เพื่อตรวจว่าโพสต์มีอยู่จริง บันทึก `x_post_id` และ `x_post_url` ลง Task แล้วติดตาม metrics ต่อเนื่อง ทุกครั้งที่ค่าเปลี่ยนจะส่งรายงานไป `ADMIN_CHAT` และ `RACER_WEBHOOK_URL` ถ้ามีการตั้งค่าไว้
+
+`X_FILTERED_STREAM_RULE` เปิดการรับโพสต์ที่ตรง rule ใกล้เรียลไทม์ผ่าน `/2/tweets/search/stream` โดยระบบจะ reconnect เมื่อ connection หลุด ส่วนการติดตามโพสต์ที่ผูก Task ใช้ polling เป็น fallback ที่ควบคุม interval ได้
+
+### ข้อจำกัดการตรวจ action รายบุคคล
+
+Bearer Token อ่านได้เฉพาะข้อมูลสาธารณะและยอดรวมของโพสต์ ไม่สามารถยืนยันได้ว่า Telegram user คนใดกด Like, Repost หรือ Bookmark ใน X การตรวจแบบรายบุคคลต้องใช้ OAuth user context ของผู้ใช้คนนั้นเอง และต้องมี scope เช่น `bookmark.read`, `tweet.read`, `users.read` จึงไม่ควรตอบผู้ใช้ว่า “ทำกิจกรรมแล้ว” จากยอดรวมของโพสต์เพียงอย่างเดียว
+
+ดูเอกสารอ้างอิงปัจจุบันได้ที่ [X API overview](https://docs.x.com/x-api/getting-started/about-x-api), [metrics](https://docs.x.com/x-api/fundamentals/metrics), [filtered stream](https://docs.x.com/x-api/posts/filtered-stream/introduction) และ [bookmarks lookup](https://docs.x.com/x-api/posts/bookmarks/quickstart/bookmarks-lookup)

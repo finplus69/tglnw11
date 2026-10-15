@@ -20,6 +20,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 import google.generativeai as genai
 from task_manager import TaskManager
+from x_integration import XMonitor
 
 
 ROOT = Path(__file__).resolve().parent
@@ -167,6 +168,14 @@ task_manager = TaskManager(
     webhook_secret=RACER_WEBHOOK_SECRET,
 )
 task_manager.register(router)
+x_monitor = XMonitor(
+    connection=conn,
+    lock=_db_lock,
+    admin_chat=ADMIN_CHAT,
+    webhook_url=RACER_WEBHOOK_URL,
+    webhook_secret=RACER_WEBHOOK_SECRET,
+)
+x_monitor.register(router)
 
 
 def record_task(user_id: int, username: str, passed: bool, points: int, hot: bool) -> None:
@@ -339,6 +348,7 @@ async def main() -> None:
         backup_db(),
         hourly_report(bot),
         deadline_warning(bot),
+        x_monitor.run(bot),
         dispatcher.start_polling(bot),
     )
 
