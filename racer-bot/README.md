@@ -40,3 +40,41 @@ python bot.py
 - escape username ก่อนใส่ใน HTML dashboard
 - ใช้ lock และ SQLite WAL ให้เข้ากับ bot + dashboard ที่ทำงานพร้อมกัน
 - ไม่ใช้ bulk messaging, bulk member adding หรือการหลบเลี่ยงข้อจำกัดของ Telegram
+
+## Channel Post → Discussion Thread → Task
+
+บอทรองรับการติดตามโพสต์ใน Channel และผูกกับ Discussion thread ด้วย `channel_id + channel_post_id` โดยไม่ต้องเดา thread จากข้อความ ผู้ใช้ต้องคอมเมนต์หลักฐานใต้โพสต์กิจกรรมที่บอท forward มาจาก Channel
+
+### ตั้งค่า Telegram
+
+1. เชื่อม Discussion Group เข้ากับ Channel
+2. เพิ่มบอทเป็นแอดมินใน Channel และ Discussion Group พร้อมสิทธิ์อ่านข้อความและส่งข้อความ
+3. ตั้ง `ACTIVE_CHANNEL_IDS` เป็น Channel ID ที่ต้องการติดตาม
+4. ตั้ง `ALLOWED_CHAT` เป็น Discussion Group ID ที่รับหลักฐาน
+5. ตั้ง `ADMIN_IDS` และ `ADMIN_CHAT` สำหรับคำสั่ง/รายงานแบบเรียลไทม์
+
+### เปิด Task จาก thread
+
+เมื่อมีโพสต์กิจกรรมใหม่ บอทจะแจ้งแอดมินแบบเรียลไทม์ จากนั้นให้แอดมินตอบกลับโพสต์ต้นฉบับใน Discussion thread ด้วย:
+
+```text
+/new_task ชื่องาน | 40 | 2026-10-16T23:59:00
+```
+
+คำสั่งเสริม:
+
+```text
+/tasks
+```
+
+การตอบกลับต้องอยู่ใต้ auto-forwarded channel post เพื่อให้ระบบเชื่อม `channel_id`, `channel_post_id`, `discussion_chat_id` และ `discussion_thread_id` ได้ถูกต้อง
+
+### ส่งหลักฐานและการตอบกลับ
+
+ผู้เข้าร่วมส่งรูปใต้ thread เดิม บอทจะตรวจ deadline, hash ภาพซ้ำ, สถานะการส่งของผู้ใช้, ส่งภาพเข้า Gemini และตอบกลับใน thread เดิมด้วยสถานะ `ผ่าน`, `ไม่ผ่าน`, `รอตรวจ` หรือ `ผิดพลาด` พร้อมแจ้งคะแนนให้แอดมินใน `ADMIN_CHAT` ทันที
+
+### ต่อเข้ากับ Racer Board
+
+ถ้าตั้ง `RACER_WEBHOOK_URL` บอทจะส่ง `task_submission_verified` หลังตรวจเสร็จพร้อม `taskId`, ผู้ใช้, โพสต์ต้นทาง, message ID ของหลักฐาน, checks, status และ points โดยใช้ `RACER_WEBHOOK_SECRET` เป็น Bearer token วิธีนี้ทำให้ Dashboard อัปเดตได้โดยไม่ต้องเปิดไฟล์ SQLite ของ Railway ออกสาธารณะ
+
+> หมายเหตุ: “โพสต์ X” ใน implementation นี้ตีความเป็นโพสต์กิจกรรมบน Telegram Channel หากหมายถึงแพลตฟอร์ม X/Twitter โดยตรง ต้องเพิ่ม X API credentials และ worker แยกต่างหาก ไม่ควรนำ token ของ Telegram ไปใช้แทนกัน

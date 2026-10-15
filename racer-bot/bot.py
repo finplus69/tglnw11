@@ -19,6 +19,7 @@ from aiogram import Bot, Dispatcher, F, Router
 from aiogram.filters import Command
 from aiogram.types import Message
 import google.generativeai as genai
+from task_manager import TaskManager
 
 
 ROOT = Path(__file__).resolve().parent
@@ -36,8 +37,11 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 GEMINI_KEY = os.getenv("GEMINI_KEY", "")
 ADMIN_IDS = csv_ints("ADMIN_IDS")
 ALLOWED_CHAT = csv_ints("ALLOWED_CHAT")
+ACTIVE_CHANNEL_IDS = csv_ints("ACTIVE_CHANNEL_IDS")
 ADMIN_CHAT = int(os.getenv("ADMIN_CHAT", "0")) if os.getenv("ADMIN_CHAT") else 0
 DEADLINE = dt.datetime.fromisoformat(os.getenv("DEADLINE", "2099-12-31T23:59:00"))
+RACER_WEBHOOK_URL = os.getenv("RACER_WEBHOOK_URL", "")
+RACER_WEBHOOK_SECRET = os.getenv("RACER_WEBHOOK_SECRET", "")
 
 PROMPT = """ตรวจสกรีนช็อตงานนี้และตอบเป็น JSON เท่านั้น ห้ามใส่ markdown:
 {"like":true,"repost":false,"bookmark":true,"comment":true}
@@ -149,6 +153,22 @@ def parse_ai_result(text: str) -> dict[str, bool]:
     return {key: result[key] for key in keys}
 
 
+task_manager = TaskManager(
+    connection=conn,
+    lock=_db_lock,
+    allowed_chats=ALLOWED_CHAT,
+    active_channels=ACTIVE_CHANNEL_IDS,
+    admin_ids=ADMIN_IDS,
+    admin_chat=ADMIN_CHAT,
+    gemini_model=lambda: genai.GenerativeModel("gemini-1.5-flash"),
+    parse_ai_result=parse_ai_result,
+    get_user=get_user,
+    webhook_url=RACER_WEBHOOK_URL,
+    webhook_secret=RACER_WEBHOOK_SECRET,
+)
+task_manager.register(router)
+
+
 def record_task(user_id: int, username: str, passed: bool, points: int, hot: bool) -> None:
     with _db_lock:
         conn.execute(
@@ -219,6 +239,8 @@ async def admin(message: Message) -> None:
 
 @router.message(F.photo)
 async def check_photo(message: Message, bot: Bot) -> None:
+    if await task_manager.handle_evidence(message, bot):
+        return
     if not await guard(message):
         return
     user = get_user(message.from_user.id, message.from_user.username)
