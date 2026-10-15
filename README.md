@@ -68,6 +68,10 @@ python -m compileall -q tele.py
 python tele.py --help
 ```
 
+## Racer Check Bot
+
+โค้ด Racer Bot สำหรับตรวจสกรีนช็อตด้วย AI, คิดคะแนน, leaderboard, backup SQLite และ Dashboard ถูกแยกไว้ที่ [`racer-bot/`](racer-bot/) เพื่อไม่ปะปนกับ Telegram CLI เดิม ดูวิธีตั้งค่าและ Deploy ได้ที่ [`racer-bot/README.md`](racer-bot/README.md)
+
 ## License
 
 MIT License ตามไฟล์ `LICENSE`
