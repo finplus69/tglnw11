@@ -106,3 +106,25 @@ X_FILTERED_STREAM_RULE=from:your_account -is:retweet
 Bearer Token อ่านได้เฉพาะข้อมูลสาธารณะและยอดรวมของโพสต์ ไม่สามารถยืนยันได้ว่า Telegram user คนใดกด Like, Repost หรือ Bookmark ใน X การตรวจแบบรายบุคคลต้องใช้ OAuth user context ของผู้ใช้คนนั้นเอง และต้องมี scope เช่น `bookmark.read`, `tweet.read`, `users.read` จึงไม่ควรตอบผู้ใช้ว่า “ทำกิจกรรมแล้ว” จากยอดรวมของโพสต์เพียงอย่างเดียว
 
 ดูเอกสารอ้างอิงปัจจุบันได้ที่ [X API overview](https://docs.x.com/x-api/getting-started/about-x-api), [metrics](https://docs.x.com/x-api/fundamentals/metrics), [filtered stream](https://docs.x.com/x-api/posts/filtered-stream/introduction) และ [bookmarks lookup](https://docs.x.com/x-api/posts/bookmarks/quickstart/bookmarks-lookup)
+
+## แจ้งเตือน Telegram อัตโนมัติ
+
+ตั้งค่า chat ที่ต้องการรับแจ้งเตือนด้วยตัวเองใน Railway Variables:
+
+```env
+TELEGRAM_NOTIFY_CHAT_IDS=123456789,-1002222222222
+TASK_DEADLINE_WARN_MINUTES=60
+```
+
+รองรับการแจ้งเตือนเมื่อพบ X post ใหม่จาก polling/Filtered Stream และเมื่อ Task ที่มีสถานะ active เหลือเวลาไม่เกินค่าที่กำหนด ระบบจะแจ้งทั้ง `ADMIN_CHAT` และทุก chat ใน `TELEGRAM_NOTIFY_CHAT_IDS` โดยไม่ส่ง token ไปหน้าเว็บ
+
+คำสั่งช่วยตั้งค่า:
+
+```text
+/my_chat_id
+/notify_test
+```
+
+ให้ส่ง `/my_chat_id` ในแชทส่วนตัวหรือกลุ่มที่ต้องการรับแจ้งเตือน แล้วนำ chat ID ไปใส่ใน `TELEGRAM_NOTIFY_CHAT_IDS` จากนั้น restart service และให้แอดมินใช้ `/notify_test` เพื่อตรวจการเชื่อมต่อ
+
+หน้า Settings ของ Racer Board เก็บเฉพาะ preference ที่ไม่ใช่ secret เช่น X rule, post IDs, chat IDs และช่วงเวลาเตือนใน browser local storage ส่วน `BOT_TOKEN`, `GEMINI_KEY`, `X_BEARER_TOKEN` และ webhook secret ต้องตั้งใน Railway Variables เท่านั้น ห้ามกรอกหรือ commit ลง Git

@@ -210,7 +210,13 @@ async def start(message: Message) -> None:
 async def help_command(message: Message) -> None:
     if not await guard(message):
         return
-    await message.answer("คำสั่ง: /start /profile /leaderboard /admin\nส่งภาพเพื่อให้ระบบตรวจ")
+    await message.answer("คำสั่ง: /start /profile /leaderboard /admin /my_chat_id /notify_test\nส่งภาพเพื่อให้ระบบตรวจ")
+
+
+@router.message(Command("my_chat_id"))
+async def my_chat_id(message: Message) -> None:
+    user_id = message.from_user.id if message.from_user else "ไม่ทราบ"
+    await message.answer(f"Telegram chat ID: {message.chat.id}\nUser ID: {user_id}\nนำ chat ID ไปตั้งใน TELEGRAM_NOTIFY_CHAT_IDS")
 
 
 @router.message(Command("profile"))

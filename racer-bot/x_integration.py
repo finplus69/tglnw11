@@ -153,6 +153,9 @@ class XMonitor:
         self.admin_chat = admin_chat
         self.webhook_url = webhook_url
         self.webhook_secret = webhook_secret
+        self.notify_chat_ids = {int(value.strip()) for value in os.getenv("TELEGRAM_NOTIFY_CHAT_IDS", "").split(",") if value.strip()}
+        self.deadline_warn_minutes = max(1, int(os.getenv("TASK_DEADLINE_WARN_MINUTES", "60")))
+        self._deadline_alerted: set[int] = set()
         self.bearer_token = os.getenv("X_BEARER_TOKEN", "")
         self.poll_seconds = max(15, int(os.getenv("X_POLL_SECONDS", "30")))
         self.post_ids = {value.strip() for value in os.getenv("X_POST_IDS", "").split(",") if value.strip()}
@@ -195,12 +198,21 @@ class XMonitor:
         return f"https://x.com/{username}/status/{post_id}" if username else f"https://x.com/i/web/status/{post_id}"
 
     async def _send_admin(self, bot: Bot, text: str) -> None:
-        if not self.admin_chat:
-            return
-        try:
-            await bot.send_message(self.admin_chat, text, disable_web_page_preview=True)
-        except Exception as exc:
-            print(f"X admin report failed: {exc}")
+        await self._send_chats(bot, text, {self.admin_chat} if self.admin_chat else set())
+
+    async def _send_alert(self, bot: Bot, text: str) -> None:
+        targets = set(self.notify_chat_ids)
+        if self.admin_chat:
+            targets.add(self.admin_chat)
+        await self._send_chats(bot, text, targets)
+
+    @staticmethod
+    async def _send_chats(bot: Bot, text: str, chat_ids: set[int]) -> None:
+        for chat_id in chat_ids:
+            try:
+                await bot.send_message(chat_id, text, disable_web_page_preview=True)
+            except Exception as exc:
+                print(f"Telegram notification failed for {chat_id}: {exc}")
 
     async def _send_webhook(self, payload: dict[str, Any]) -> None:
         if not self.webhook_url:
@@ -299,9 +311,10 @@ class XMonitor:
         if not changed:
             return
         task_label = f"Task #{task['id']} · {task['title']}" if task else "ยังไม่ผูก Task"
-        report = f"📈 X post update · {task_label}\n{url}\n❤️ {metrics.get('like_count', 0)} · 🔁 {metrics.get('retweet_count', 0)} · 💬 {metrics.get('reply_count', 0)} · 🔖 {metrics.get('bookmark_count', 0)}"
-        await self._send_admin(bot, report)
-        await self._send_webhook({"event": "x_post_metrics_updated", "postId": post_id, "postUrl": url, "taskId": task["id"] if task else None, "taskTitle": task["title"] if task else None, "text": post.get("text", ""), "publicMetrics": metrics, "seenAt": now})
+        is_new = previous is None
+        report = f"{'📣 X post ใหม่' if is_new else '📈 X post update'} · {task_label}\n{url}\n❤️ {metrics.get('like_count', 0)} · 🔁 {metrics.get('retweet_count', 0)} · 💬 {metrics.get('reply_count', 0)} · 🔖 {metrics.get('bookmark_count', 0)}"
+        await self._send_alert(bot, report)
+        await self._send_webhook({"event": "x_post_new" if is_new else "x_post_metrics_updated", "postId": post_id, "postUrl": url, "taskId": task["id"] if task else None, "taskTitle": task["title"] if task else None, "text": post.get("text", ""), "publicMetrics": metrics, "seenAt": now})
 
     async def _poll_loop(self, bot: Bot) -> None:
         while True:
@@ -315,6 +328,24 @@ class XMonitor:
                     except Exception as exc:
                         print(f"X post lookup failed for {post_id}: {exc}")
             await asyncio.sleep(self.poll_seconds)
+
+    async def _deadline_loop(self, bot: Bot) -> None:
+        while True:
+            now = dt.datetime.now()
+            limit = now + dt.timedelta(minutes=self.deadline_warn_minutes)
+            with self.lock:
+                rows = self.conn.execute("SELECT id,title,deadline,points FROM racer_tasks WHERE status='active'").fetchall()
+            for row in rows:
+                try:
+                    deadline = dt.datetime.fromisoformat(row["deadline"])
+                except (TypeError, ValueError):
+                    continue
+                if now <= deadline <= limit and row["id"] not in self._deadline_alerted:
+                    self._deadline_alerted.add(row["id"])
+                    remaining = max(0, int((deadline - now).total_seconds() // 60))
+                    await self._send_alert(bot, f"⏰ Task ใกล้ครบกำหนด\n#{row['id']} · {row['title']}\nเหลือประมาณ {remaining} นาที\nคะแนน {row['points']} · หมดเขต {deadline:%d/%m/%Y %H:%M}")
+                    await self._send_webhook({"event": "task_deadline_warning", "taskId": row["id"], "title": row["title"], "deadline": row["deadline"], "minutesRemaining": remaining})
+            await asyncio.sleep(60)
 
     async def _stream_loop(self, bot: Bot) -> None:
         if not self.client or not self.stream_rule:
@@ -334,8 +365,17 @@ class XMonitor:
     async def run(self, bot: Bot) -> None:
         if not self.bearer_token:
             print("X monitor disabled: X_BEARER_TOKEN is not set")
-            await asyncio.Event().wait()
-        await asyncio.gather(self._poll_loop(bot), self._stream_loop(bot))
+        await asyncio.gather(self._poll_loop(bot), self._stream_loop(bot), self._deadline_loop(bot))
+
+    async def notify_test(self, message: Message, bot: Bot) -> None:
+        if message.from_user is None or message.from_user.id not in self._admin_ids():
+            return
+        if not self.notify_chat_ids:
+            await message.reply("ยังไม่มี TELEGRAM_NOTIFY_CHAT_IDS")
+            return
+        await self._send_alert(bot, "✅ ทดสอบการแจ้งเตือน Racer Bot สำเร็จ\nการแจ้งเตือน X post และ Task deadline พร้อมทำงาน")
+        await message.reply(f"ส่งข้อความทดสอบไปแล้ว {len(self.notify_chat_ids)} chat")
 
     def register(self, router: Router) -> None:
         router.message(Command("link_x_task"))(self.link_x_task)
+        router.message(Command("notify_test"))(self.notify_test)
